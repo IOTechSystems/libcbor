@@ -14,11 +14,6 @@ def buildStage (arch)
   sh "./scripts/docker.sh ${arch} all"
 }
 
-def packageStage (arch)
-{
-  sh "./scripts/package.sh ${arch} all"
-}
-
 def archiveStage (arch)
 {
   def server = Artifactory.server 'artifactory'
@@ -65,7 +60,6 @@ def buildStages (target)
   {
     stage ("Checkout ${target}") { checkoutStage (target)}
     stage ("Build ${target}") { buildStage (target) }
-    stage ("Package ${target}") { packageStage (target) }
     stage ("Archive ${target}") { archiveStage (target) }
   }
 }
