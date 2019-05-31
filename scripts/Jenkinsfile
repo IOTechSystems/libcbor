@@ -1,0 +1,93 @@
+#!/usr/bin/env groovy
+
+def targets = ['x86_64', 'arm64', 'arm32'] as String[]
+
+def checkoutStage (arch)
+{
+  cleanWs (cleanWhenAborted: true, cleanWhenFailure: true, cleanWhenNotBuilt: true, cleanWhenSuccess: true)
+  checkout scm
+  currentBuild.displayName = "libcbor alpine ${arch}: ${env.BUILD_ID}"
+  sh "./checkout.sh ${env.BUILD} mqtt-broker"
+}
+
+def buildStage (arch)
+{
+  sh "./docker.sh ${arch} all"
+}
+
+def packageStage (arch)
+{
+  sh "./package.sh ${arch} all"
+}
+
+def archiveStage (arch)
+{
+  def server = Artifactory.server 'artifactory'
+  publishApks (arch, server)
+  indexApks()
+}
+
+def indexApks ()
+{
+  if ("${params.System}" == 'alpine-3.8' || "${params.System}" == 'all')
+  {
+    build (job: 'APK-Packaging-INDEX', parameters: [string (name: 'SLAVE', value: 'docker-x86_64'), string (name: 'BUILD', value: 'heads/master')])
+  }
+}
+
+def publishApks (arch, server)
+{
+  def apks_x86_64 = ['alpine-3.8', 'alpine-3.9']
+  def apks_arm64 = ['alpine-3.8', 'alpine-3.9']
+  def apks_arm32 = ['alpine-3.8', 'alpine-3.9']
+  def apk_lists = [x86_64: apks_x86_64, arm64: apks_arm64, arm32: apks_arm32]
+  def apk_archs = [x86_64: 'x86_64', arm64: 'aarch64', arm32: 'armhf']
+  def apks = apk_lists[arch]
+
+  for (int i = 0; i < apks.size(); ++i)
+  {
+    if ("${params.System}" == "${apks[i]}" || "${params.System}" == 'all')
+    {
+      sh "./scripts/package.sh ${apk_archs[arch]} ${apks[i]}"
+      def uploadSpec = """{"files":[
+      {
+        "pattern": "apk/${apks[i]}/packager/${apk_archs[arch]}/*.apk",
+        "target": "alpine/${apks[i]}/${apk_archs[arch]}/"
+      }
+      ]}"""
+      server.upload (uploadSpec)
+    }
+  }
+}
+
+def buildStages (target)
+{
+  node ("docker-${target}")
+  {
+    stage ("Checkout ${target}") { checkoutStage (target)}
+    stage ("Build ${target}") { buildStage (target) }
+    stage ("Package ${target}") { packageStage (target) }
+  }
+}
+
+buildMap = [:]
+for (t in targets)
+{
+  def target = t
+  if (("${params.Arch}" == target || "${params.Arch}" == 'all'))
+  {
+    buildMap[target] = { buildStages (target) }
+  }
+}
+buildMap.failFast = false
+
+pipeline
+{
+  agent none
+  parameters
+  {
+    string (defaultValue: 'heads/iotech-build', description: 'tags/<tag> or heads/<branch>', name: 'BUILD')
+    choice (choices: ['x86_64','arm64','arm32', 'all'], description: 'Build Host Architecture', name: 'Arch')
+  }
+  stages { stage ('All') { steps { script { parallel buildMap }}}}
+}

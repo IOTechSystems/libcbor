@@ -1,0 +1,25 @@
+# Contributor: IoTech <support@iotechsys.com>
+# Maintainer: IoTech <support@iotechsys.com>
+pkgname=libcbor
+pkgver="$VER"
+pkgrel=0
+pkgdesc="Libcbor for alpine"
+url="www.iotechsys.com"
+arch="$ARCH"
+license="Apache-2.0"
+depends=""
+install=""
+source="libcbor-$VER-Linux.tar.gz"
+builddir="$srcdir/"
+options="!check !strip !tracedeps"
+
+package() {
+    cd "$builddir"
+    install -Dm755 libcbor-$VER-Linux/lib64/libcbor.a "$pkgdir"/usr/lib64/libcbor.a
+    install -Dm755 libcbor-$VER-Linux/lib64/libcbor.so "$pkgdir"/usr/lib64/libcbor.so
+    install -Dm755 libcbor-$VER-Linux/lib64/libcbor.so.0 "$pkgdir"/usr/lib64/libcbor.so.0
+    install -Dm755 libcbor-$VER-Linux/lib64/libcbor.so.0.0.0 "$pkgdir"/usr/lib64/libcbor.so.0.0.0
+    mkdir -p "$pkgdir"/usr/include/cbor/internal/
+    cp -r libcbor-$VER-Linux/include/* "$pkgdir"/usr/include/
+}
+ 

@@ -1,0 +1,7 @@
+FROM alpine:3.9
+MAINTAINER Tom Fleming <tom@iotechsys.com>
+RUN apk add --update --no-cache build-base wget gcc cmake make rpm-dev
+RUN mkdir -p /libcbor/
+WORKDIR /libcbor/
+COPY . .
+ENTRYPOINT /libcbor/scripts/entrypoint.sh
