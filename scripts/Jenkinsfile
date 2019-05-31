@@ -11,12 +11,12 @@ def checkoutStage (arch)
 
 def buildStage (arch)
 {
-  sh "./docker.sh ${arch} all"
+  sh "./scripts/docker.sh ${arch} all"
 }
 
 def packageStage (arch)
 {
-  sh "./package.sh ${arch} all"
+  sh "./scripts/package.sh ${arch} all"
 }
 
 def archiveStage (arch)
