@@ -66,6 +66,7 @@ def buildStages (target)
     stage ("Checkout ${target}") { checkoutStage (target)}
     stage ("Build ${target}") { buildStage (target) }
     stage ("Package ${target}") { packageStage (target) }
+    stage ("Archive ${target}") { archiveStage (target) }
   }
 }
 
