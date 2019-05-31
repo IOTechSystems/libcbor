@@ -7,7 +7,6 @@ def checkoutStage (arch)
   cleanWs (cleanWhenAborted: true, cleanWhenFailure: true, cleanWhenNotBuilt: true, cleanWhenSuccess: true)
   checkout scm
   currentBuild.displayName = "libcbor alpine ${arch}: ${env.BUILD_ID}"
-  sh "./checkout.sh ${env.BUILD} mqtt-broker"
 }
 
 def buildStage (arch)
