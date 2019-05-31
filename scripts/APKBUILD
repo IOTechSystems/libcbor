@@ -15,10 +15,10 @@ options="!check !strip !tracedeps"
 
 package() {
     cd "$builddir"
-    install -Dm755 libcbor-$VER-Linux/lib64/libcbor.a "$pkgdir"/usr/lib64/libcbor.a
-    install -Dm755 libcbor-$VER-Linux/lib64/libcbor.so "$pkgdir"/usr/lib64/libcbor.so
-    install -Dm755 libcbor-$VER-Linux/lib64/libcbor.so.0 "$pkgdir"/usr/lib64/libcbor.so.0
-    install -Dm755 libcbor-$VER-Linux/lib64/libcbor.so.0.0.0 "$pkgdir"/usr/lib64/libcbor.so.0.0.0
+    install -Dm755 libcbor-$VER-Linux/lib*/libcbor.a "$pkgdir"/usr/lib/libcbor.a
+    install -Dm755 libcbor-$VER-Linux/lib*/libcbor.so "$pkgdir"/usr/lib/libcbor.so
+    install -Dm755 libcbor-$VER-Linux/lib*/libcbor.so.0 "$pkgdir"/usr/lib/libcbor.so.0
+    install -Dm755 libcbor-$VER-Linux/lib*/libcbor.so.0.0.0 "$pkgdir"/usr/lib/libcbor.so.0.0.0
     mkdir -p "$pkgdir"/usr/include/cbor/internal/
     cp -r libcbor-$VER-Linux/include/* "$pkgdir"/usr/include/
 }
