@@ -82,6 +82,7 @@ pipeline
   {
     string (defaultValue: 'heads/iotech-build', description: 'tags/<tag> or heads/<branch>', name: 'BUILD')
     choice (choices: ['x86_64','arm64','arm32', 'all'], description: 'Build Host Architecture', name: 'Arch')
+    choice (choices: ['alpine-3.8','alpine-3.9','all'], description: 'System to Build', name: 'System')
   }
   stages { stage ('All') { steps { script { parallel buildMap }}}}
 }
