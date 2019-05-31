@@ -16,7 +16,7 @@ options="!check !strip !tracedeps"
 package() {
     cd "$builddir"
     mkdir -p "$pkgdir"/usr/
-    cp -r libcbor-$VER-Linux/lib* "$pkgdir"/usr/
+    cp -r libcbor-$VER-Linux/lib* "$pkgdir"/usr/local/
     chmod 755 "$pkgdir"/usr/
     mkdir -p "$pkgdir"/usr/include/cbor/internal/
     cp -r libcbor-$VER-Linux/include/* "$pkgdir"/usr/include/
