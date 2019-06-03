@@ -20,7 +20,7 @@ build_apk()
     IMAGE_ARCH="arm"
   fi
   docker pull docker.iotechsys.com/services/iotech-apk-builder-${IMAGE_ARCH}:0.2.0
-  docker run --rm -e UID=`id -u ${USER}` -e GID=`id -g ${USER}` -v "$(pwd)"/apk/${DIST}:/home/packager/build docker.iotechsys.com/services/iotech-apk-builder-${IMAGE_ARCH}:0.2.0
+  docker run --rm -e ARCH="${ARCH}" -e UID=`id -u ${USER}` -e GID=`id -g ${USER}` -v "$(pwd)"/apk/${DIST}:/home/packager/build docker.iotechsys.com/services/iotech-apk-builder-${IMAGE_ARCH}:0.2.0
   docker rmi docker.iotechsys.com/services/iotech-apk-builder-${IMAGE_ARCH}:0.2.0
 }
 
