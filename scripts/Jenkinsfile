@@ -42,6 +42,9 @@ def publishApks (arch, server)
   {
     if ("${params.System}" == "${apks[i]}" || "${params.System}" == 'all')
     {
+      if ("${apks[i]}" == "alpine-3.9"){ 
+        apk_archs = [x86_64: 'x86_64', arm64: 'aarch64', arm32: 'armv7']
+      }
       sh "./scripts/package.sh ${apk_archs[arch]} ${apks[i]}"
       def uploadSpec = """{"files":[
       {

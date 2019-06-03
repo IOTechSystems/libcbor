@@ -15,7 +15,7 @@ build_apk()
   if [ "$ARCH" = "aarch64" ]
   then
     IMAGE_ARCH="arm64"
-  elif [ "$ARCH" = "armhf" ]
+  elif [ "$ARCH" = "armhf" ] || [ "$ARCH" = "armv7" ]
   then
     IMAGE_ARCH="arm"
   fi
