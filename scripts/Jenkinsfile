@@ -42,7 +42,7 @@ def publishApks (arch, server)
   {
     if ("${params.System}" == "${apks[i]}" || "${params.System}" == 'all')
     {
-      if ("${apks[i]}" == "alpine-3.9" && "${arch} == "arm32"){ 
+      if ("${apks[i]}" == "alpine-3.9" && "${arch}" == "arm32"){ 
         apk_archs = [x86_64: 'x86_64', arm64: 'aarch64', arm32: 'armv7']
       } else {
         apk_archs = [x86_64: 'x86_64', arm64: 'aarch64', arm32: 'armhf']
