@@ -14,11 +14,6 @@ build_dist()
   docker rmi libcbor-${DIST}:${VER}
 }
 
-if [ "$SYSTEM" = "alpine-3.8" -o "$SYSTEM" = "all"  ]
-then
-  build_dist alpine-3.8
-fi
-
 if [ "$SYSTEM" = "alpine-3.9" -o "$SYSTEM" = "all"  ]
 then
   build_dist alpine-3.9

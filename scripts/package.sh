@@ -15,30 +15,16 @@ build_apk()
   if [ "$ARCH" = "aarch64" ]
   then
     IMAGE_ARCH="arm64"
-  elif [ "$ARCH" = "armhf" ] || [ "$ARCH" = "armv7" ]
+  elif [ "$ARCH" = "armv7" ]
   then
     IMAGE_ARCH="arm"
-    if [ "$DIST" = "alpine-3.9" ]
-    then
-      ARCH="armv7"
-    fi
   fi
-  if [ "$ARCH" = "armv7" ]
-  then
-    docker pull docker.iotechsys.com/services/iotech-apk-builder-${DIST}-${IMAGE_ARCH}:0.2.0
-    docker run --rm -e ARCH="${ARCH}" -e UID=`id -u ${USER}` -e GID=`id -g ${USER}` -v "$(pwd)"/apk/${DIST}:/home/packager/build docker.iotechsys.com/services/iotech-apk-builder-${DIST}-${IMAGE_ARCH}:0.2.0
-    docker rmi docker.iotechsys.com/services/iotech-apk-builder-${DIST}-${IMAGE_ARCH}:0.2.0
-  else
+
     docker pull docker.iotechsys.com/services/iotech-apk-builder-${IMAGE_ARCH}:0.2.0
     docker run --rm -e ARCH="${ARCH}" -e UID=`id -u ${USER}` -e GID=`id -g ${USER}` -v "$(pwd)"/apk/${DIST}:/home/packager/build docker.iotechsys.com/services/iotech-apk-builder-${IMAGE_ARCH}:0.2.0
     docker rmi docker.iotechsys.com/services/iotech-apk-builder-${IMAGE_ARCH}:0.2.0
-  fi
 }
 
-if [ "$TYPE" = "alpine-3.8" -o "$TYPE" = "all"  ]
-then
-  build_apk alpine-3.8
-fi
 
 if [ "$TYPE" = "alpine-3.9" -o "$TYPE" = "all"  ]
 then
