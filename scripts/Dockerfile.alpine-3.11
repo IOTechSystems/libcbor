@@ -1,4 +1,4 @@
-FROM alpine:3.9
+FROM alpine:3.11
 LABEL maintainer = “iotech <support@iotechsys.com>”
 RUN apk add --update --no-cache build-base wget gcc cmake make rpm-dev
 RUN mkdir -p /libcbor/

@@ -19,3 +19,7 @@ then
   build_dist alpine-3.9
 fi
 
+if [ "$SYSTEM" = "alpine-3.11" -o "$SYSTEM" = "all"  ]
+then
+  build_dist alpine-3.11
+fi

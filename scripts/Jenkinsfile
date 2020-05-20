@@ -23,17 +23,14 @@ def archiveStage (arch)
 
 def indexApks ()
 {
-  if ("${params.System}" == 'alpine-3.8' || "${params.System}" == 'all')
-  {
-    build (job: 'APK-Packaging-INDEX', parameters: [string (name: 'SLAVE', value: 'docker-x86_64'), string (name: 'BUILD', value: 'heads/master')])
-  }
+  build (job: 'APK-Packaging-INDEX', parameters: [string (name: 'SLAVE', value: 'docker-x86_64'), string (name: 'BUILD', value: 'heads/master')])
 }
 
 def publishApks (arch, server)
 {
-  def apks_x86_64 = ['alpine-3.9']
-  def apks_arm64 = ['alpine-3.9']
-  def apks_arm32 = ['alpine-3.9']
+  def apks_x86_64 = ['alpine-3.9','alpine-3.11']
+  def apks_arm64 = ['alpine-3.9','alpine-3.11']
+  def apks_arm32 = ['alpine-3.9','alpine-3.11']
   def apk_lists = [x86_64: apks_x86_64, arm64: apks_arm64, arm32: apks_arm32]
   def apk_archs = [x86_64: 'x86_64', arm64: 'aarch64', arm32: 'armv7']
   def apks = apk_lists[arch]
@@ -82,7 +79,7 @@ pipeline
   {
     string (defaultValue: 'heads/iotech-build', description: 'tags/<tag> or heads/<branch>', name: 'BUILD')
     choice (choices: ['x86_64','arm64','arm32', 'all'], description: 'Build Host Architecture', name: 'Arch')
-    choice (choices: ['alpine-3.9','all'], description: 'System to Build', name: 'System')
+    choice (choices: ['alpine-3.9','alpine-3.11','all'], description: 'System to Build', name: 'System')
   }
   stages { stage ('All') { steps { script { parallel buildMap }}}}
 }
