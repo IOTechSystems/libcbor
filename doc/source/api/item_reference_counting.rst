@@ -1,7 +1,7 @@
 Memory management and reference counting
 ===============================================
 
-Due to the nature of its domain *libcbor* will need to work with heap memory. The stateless decoder and encoder don't allocate any memory.
+Due to the nature of its domain, *libcbor* will need to work with heap memory. The stateless decoder and encoder don't allocate any memory.
 
 If you have specific requirements, you should consider rolling your own driver for the stateless API.
 
@@ -10,15 +10,15 @@ Using custom allocator
 
 *libcbor* gives you with the ability to provide your own implementations of ``malloc``, ``realloc``, and ``free``. This can be useful if you are using a custom allocator throughout your application, or if you want to implement custom policies (e.g. tighter restrictions on the amount of allocated memory).
 
-In order to use this feature, *libcbor* has to be compiled with the :doc:`appropriate flags <getting_started>`. You can verify the configuration using the ``CBOR_CUSTOM_ALLOC`` macro. A simple usage might be as follows:
+In order to use this feature, *libcbor* has to be compiled with the :doc:`appropriate flags </getting_started>`. You can verify the configuration using the ``CBOR_CUSTOM_ALLOC`` macro. A simple usage might be as follows:
 
 .. code-block:: c
 
-    #if CBOR_CUSTOM_ALLOC
-        cbor_set_allocs(malloc, realloc, free);
-    #else
-       #error "libcbor built with support for custom allocation is required"
-    #endif
+	#if CBOR_CUSTOM_ALLOC
+		cbor_set_allocs(malloc, realloc, free);
+	#else
+	   #error "libcbor built with support for custom allocation is required"
+	#endif
 
 .. doxygenfunction:: cbor_set_allocs
 

@@ -49,24 +49,19 @@ cp -r html libcbor_docs_html
 tar -zcf libcbor_docs.tar.gz libcbor_docs_html
 
 cp -r doxygen/html libcbor_api_docs_html
-cp -r doxygen/html $DIR/docs/doxygen
 tar -zcf libcbor_api_docs.tar.gz libcbor_api_docs_html
 
 mv libcbor_docs.tar.gz libcbor_api_docs.tar.gz $OUTDIR
 
-cd $OUTDIR
-
+pushd $OUTDIR
 cmake $DIR -DCMAKE_BUILD_TYPE=Release -DWITH_TESTS=ON
 make
 ctest
-
-cd $DIR
-git add docs/doxygen
-git commit -m "[Release] Add current API documentation"
+popd
 
 prompt "Will proceed to tag the release with $TAG_NAME."
 git tag $TAG_NAME
-git push origin
+git push --tags
 
 set +x
 
@@ -74,15 +69,5 @@ echo "Release ready in $OUTDIR"
 echo "Add the release to GitHub at https://github.com/PJK/libcbor/releases/new *now*"
 prompt "Have you added the release to https://github.com/PJK/libcbor/releases/tag/$TAG_NAME?"
 
-set -x
-
-pushd docs
-erb index.html.erb > index.html
-git add index.html
-git commit -m "[Release] Update website to $TAG_NAME"
-git push
-
-set +x
-
-echo "Update the Hombrew tap (https://github.com/PJK/homebrew-libcbor) *now*"
-prompt "Have you updated the tap?"
+echo "Update the Hombrew formula (https://github.com/Homebrew/homebrew-core/blob/master/Formula/libcbor.rb) *now*"
+prompt "Have you updated the formula?"

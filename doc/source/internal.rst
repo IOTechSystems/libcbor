@@ -62,7 +62,7 @@ Generally speaking, data items consist of three parts:
 
  - a generic :type:`handle <cbor_item_t>`,
  - the associated :type:`metadata <cbor_item_metadata>`,
- - and the :type:`actual data  <cbor_item_t.data>`
+ - and the actual data
 
 .. type:: cbor_item_t
 
@@ -78,7 +78,7 @@ Generally speaking, data items consist of three parts:
 
     .. member:: union cbor_item_metadata metadata
 
-        Union discriminated by :member:`cbor_item_t.type`. Contains type-specific metadata
+        Union discriminated by :member:`type`. Contains type-specific metadata
 
     .. member:: unsigned char * data
 
@@ -106,18 +106,20 @@ Generally speaking, data items consist of three parts:
         Dynamically sized types (:doc:`api/type_2`, :doc:`api/type_3`, :doc:`api/type_4`, :doc:`api/type_5`) may store handle and data in separate locations. This enables creating large items (e.g :doc:`byte strings <api/type_2>`) without :func:`realloc` or copying large blocks of memory. One simply attaches the correct pointer to the handle.
 
 
-.. type:: union cbor_item_metadata
+.. type:: cbor_item_metadata
 
-    .. member:: struct _cbor_int_metadata int_metadata;
+    Union type of the following members, based on the item type:
+
+    .. member:: struct _cbor_int_metadata int_metadata
 
         Used both by both :doc:`api/type_0_1`
 
-    .. member:: struct _cbor_bytestring_metadata bytestring_metadata;
-    .. member:: struct _cbor_string_metadata string_metadata;
-    .. member:: struct _cbor_array_metadata array_metadata;
-    .. member:: struct _cbor_map_metadata map_metadata;
-    .. member:: struct _cbor_tag_metadata tag_metadata;
-    .. member:: struct _cbor_float_ctrl_metadata float_ctrl_metadata;
+    .. member:: struct _cbor_bytestring_metadata bytestring_metadata
+    .. member:: struct _cbor_string_metadata string_metadata
+    .. member:: struct _cbor_array_metadata array_metadata
+    .. member:: struct _cbor_map_metadata map_metadata
+    .. member:: struct _cbor_tag_metadata tag_metadata
+    .. member:: struct _cbor_float_ctrl_metadata float_ctrl_metadata
 
 Decoding
 ---------

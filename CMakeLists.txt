@@ -1,21 +1,15 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 2.8)
 project(libcbor)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMakeModules/")
 include(CTest)
 
 SET(CBOR_VERSION_MAJOR "0")
-SET(CBOR_VERSION_MINOR "5")
+SET(CBOR_VERSION_MINOR "7")
 SET(CBOR_VERSION_PATCH "0")
 SET(CBOR_VERSION ${CBOR_VERSION_MAJOR}.${CBOR_VERSION_MINOR}.${CBOR_VERSION_PATCH})
 
 set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY true)
 include(CheckIncludeFiles)
-
-check_include_files(endian.h HAVE_ENDIAN_H)
-if(HAVE_ENDIAN_H)
-    # BSD source needed or else GNU-y extensions will not be visible
-    add_definitions(-D_BSD_SOURCE)
-    add_definitions(-DHAVE_ENDIAN_H)
-endif()
 
 include(TestBigEndian)
 test_big_endian(BIG_ENDIAN)
@@ -26,11 +20,14 @@ endif()
 option(CBOR_CUSTOM_ALLOC "Custom, dynamically defined allocator support" OFF)
 option(CBOR_PRETTY_PRINTER "Include a pretty-printing routine" ON)
 set(CBOR_BUFFER_GROWTH "2" CACHE STRING "Factor for buffer growth & shrinking")
+set(CBOR_MAX_STACK_SIZE "2048" CACHE STRING "maximum size for decoding context stack")
 
-option(WITH_TESTS "[TEST] Build unit tests (requires CMocka" OFF)
+option(WITH_TESTS "[TEST] Build unit tests (requires CMocka)" OFF)
 if(WITH_TESTS)
     add_definitions(-DWITH_TESTS)
 endif(WITH_TESTS)
+
+option(WITH_EXAMPLES "Build examples" ON)
 
 option(HUGE_FUZZ "[TEST] Fuzz through 8GB of data in the test. Do not use with memory instrumentation!" OFF)
 if(HUGE_FUZZ)
@@ -47,6 +44,7 @@ if(PRINT_FUZZ)
     add_definitions(-DPRINT_FUZZ)
 endif(PRINT_FUZZ)
 
+option(SANITIZE "Enable ASan & a few compatible sanitizers in Debug mode" ON)
 
 set(CPACK_GENERATOR "DEB" "TGZ" "RPM")
 set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
@@ -62,7 +60,7 @@ if(MINGW)
     # https://github.com/PJK/libcbor/issues/13
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
 elseif(NOT MSVC)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -pedantic")
 endif()
 
 if(MSVC)
@@ -71,12 +69,17 @@ if(MSVC)
 else()
     set(CBOR_RESTRICT_SPECIFIER "restrict")
 
-    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -Wall -pedantic -g -ggdb -DDEBUG=true")
-    set(CMAKE_C_FLAGS_RELEASE "-O3 -flto -Wall -pedantic -DNDEBUG")
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -Wall -g -ggdb -DDEBUG=true")
+    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -Wall -DNDEBUG")
+
+    if(SANITIZE)
+        set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} \
+            -fsanitize=undefined -fsanitize=address \
+            -fsanitize=bounds -fsanitize=alignment")
+    endif()
 endif()
 
 set(CMAKE_EXE_LINKER_FLAGS_DEBUG "-g")
-set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-flto")
 
 
 include(CheckTypeSize)
@@ -120,10 +123,37 @@ install(FILES ${PROJECT_BINARY_DIR}/cbor/configuration.h DESTINATION include/cbo
 # Make the header visible at compile time
 include_directories(${PROJECT_BINARY_DIR})
 
+# CMake >= 3.9.0 enables LTO for GCC and Clang with INTERPROCEDURAL_OPTIMIZATION
+# Policy CMP0069 enables this behavior when we set the minimum CMake version < 3.9.0
+# Checking for LTO support before setting INTERPROCEDURAL_OPTIMIZATION is mandatory with CMP0069 set to NEW.
+set(use_lto FALSE)
+if(${CMAKE_VERSION} VERSION_GREATER "3.9.0" OR ${CMAKE_VERSION} VERSION_EQUAL "3.9.0")
+    cmake_policy(SET CMP0069 NEW)
+    # Require LTO support to build libcbor with newer CMake versions
+    include(CheckIPOSupported)
+    check_ipo_supported(RESULT use_lto)
+endif(${CMAKE_VERSION} VERSION_GREATER "3.9.0" OR ${CMAKE_VERSION} VERSION_EQUAL "3.9.0")
+if(use_lto)
+    message(STATUS "LTO is enabled")
+else()
+    message(STATUS "LTO is not enabled")
+endif(use_lto)
+
 subdirs(src)
+if(use_lto)
+    set_property(DIRECTORY src PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif(use_lto)
 
 if (WITH_TESTS)
     subdirs(test)
+    if(use_lto)
+        set_property(DIRECTORY test PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+    endif(use_lto)
 endif (WITH_TESTS)
 
-subdirs(examples)
+if (WITH_EXAMPLES)
+    subdirs(examples)
+    if(use_lto)
+        set_property(DIRECTORY examples PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+    endif(use_lto)
+endif (WITH_EXAMPLES)
